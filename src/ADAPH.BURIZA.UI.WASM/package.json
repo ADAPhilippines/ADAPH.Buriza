@@ -1,0 +1,27 @@
+{
+  "name": "adaph.buriza.ui.wasm",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build:css": "tailwindcss -i wwwroot/css/app.css -o wwwroot/dist/css/app.min.css",
+    "watch:css": "tailwindcss -i wwwroot/css/app.css -o wwwroot/dist/css/app.min.css --watch",
+    "build:scripts": "webpack --mode production",
+    "watch:scripts": "webpack --watch --mode development"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@emurgo/cardano-serialization-lib-browser": "^9.1.4",
+    "autoprefixer": "^10.4.2",
+    "bip39": "^3.0.4",
+    "buffer": "^6.0.3",
+    "postcss": "^8.4.6",
+    "stream-browserify": "^3.0.0",
+    "tailwindcss": "^3.0.18",
+    "ts-loader": "^9.2.6",
+    "typescript": "^4.5.5",
+    "webpack": "^5.65.0",
+    "webpack-cli": "^4.9.1"
+  }
+}
