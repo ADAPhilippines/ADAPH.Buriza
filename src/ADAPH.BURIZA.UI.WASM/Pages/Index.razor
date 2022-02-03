@@ -1,5 +1,5 @@
-﻿@using MudBlazor;
-@namespace ADAPH.BURIZA.UI.WASM.Pages
+﻿@namespace ADAPH.BURIZA.UI.WASM.Pages
+@using MudBlazor
 @page "/"
 
 <PageTitle>Buriza Wallet</PageTitle>
@@ -8,59 +8,72 @@
         Buriza Wallet
     </h1>
     <div class="w-full flex flex-col justify-center items-center max-w-[80%] mt-8">
-        @if (!IsSeedPhraseShown && !IsValidateSeedPhraseShown)
+        @if (!hasWalletId)
         {
-            <div class="flex flex-row space-x-4 justify-center items-center">
-                <MudButton Variant="Variant.Filled" OnClick="OnCreateButtonClick" Class="p-8 primary-button">Create New Wallet</MudButton>
-                <MudButton Variant="Variant.Filled" OnClick="OnRestoreButtonClick" Class="p-8 primary-button">Restore Wallet</MudButton>
-            </div>
+            @if (!IsSeedPhraseShown && !IsValidateSeedPhraseShown)
+            {
+                <div class="flex flex-row space-x-4 justify-center items-center">
+                    <MudButton Variant="Variant.Filled" OnClick="OnCreateButtonClick" Class="p-8 primary-button">Create New Wallet</MudButton>
+                    <MudButton Variant="Variant.Filled" OnClick="OnRestoreButtonClick" Class="p-8 primary-button">Restore Wallet</MudButton>
+                </div>
+            }
+            @if (IsSeedPhraseShown && GeneratedMnemonicWords is not null)
+            {
+                <ul role="list" class="grid grid-cols-4 gap-y-8 gap-x-12 list-decimal">
+                    @foreach (var word in GeneratedMnemonicWords)
+                    {
+                        <li>
+                            <MudChip Color="Color.Info">
+                                <span class="font-semibold text-lg">@word</span>
+                            </MudChip>
+                        </li>
+                    }
+                </ul>
+                <MudButton Variant="Variant.Filled" OnClick="OnRestoreButtonClick" Class="p-4 primary-button mt-8">Proceed</MudButton>
+            }
+            @if (IsValidateSeedPhraseShown)
+            {
+                <ul role="list" class="grid grid-cols-4 gap-y-8 gap-x-12 list-decimal">
+                    @foreach (var word in ValidationSeedPhrase)
+                    {
+                        <li>
+                            <MudChip Color="Color.Info" Class="seed-word">
+                                <span class="font-semibold text-lg min-w-[150px]">@word</span>
+                            </MudChip>
+                        </li>
+                    }
+                    @for (var i = ValidationSeedPhrase.Count; i < MAX_SEED_PHRASE_COUNT; i++)
+                    {
+                        <li>
+                            <MudChip Color="Color.Info" Class="seed-word">
+                                <span class="font-semibold text-lg min-w-[150px]"></span>
+                            </MudChip>
+                        </li>
+                    }
+                </ul>
+                <div class="flex flex-row space-x-4 justify-center items-center w-full">
+                    <MudTextField @bind-Value="@ValidationSeedPhraseRawText" Immediate="true" Variant="Variant.Outlined" OnKeyUp="OnValidationTextFieldKeyUp" Disabled="@ShouldDisableValidationTextField()" Class="w-[80%]"/>
+                    @if (ShouldDisableValidationTextField())
+                    {
+                        <MudButton Class="primary-button p-2" OnClick="OnValidateButtonClick">Submit</MudButton>
+                    }
+                    else
+                    {
+                        <MudButton Class="primary-button p-2" OnClick="OnClearButtonClick">Clear</MudButton>
+                    }
+                </div>
+            }
+            @if (IsSeedPhraseShown || IsValidateSeedPhraseShown)
+            {
+                <MudButton Variant="Variant.Filled" OnClick="OnCancelButtonClick" Class="p-4 primary-button mt-8">Cancel</MudButton>
+            }
         }
-        @if (IsSeedPhraseShown && GeneratedMnemonicWords is not null)
+        else
         {
-            <div class="grid grid-cols-4 gap-4">
-                @foreach (var word in GeneratedMnemonicWords)
-                {
-                    <MudChip Color="Color.Info">
-                        <span class="font-semibold text-lg">@word</span>
-                    </MudChip>
-                }
-            </div>
-        }
-        @if (IsValidateSeedPhraseShown)
-        {
-            <ul role="list" class="grid grid-cols-4 gap-y-8 gap-x-12 list-decimal">
-                @foreach (var word in ValidationSeedPhrase)
-                {
-                    <li>
-                        <MudChip Color="Color.Info" Class="seed-word">
-                            <span class="font-semibold text-lg min-w-[150px]">@word</span>
-                        </MudChip>
-                    </li>
-                }
-                @for (var i = ValidationSeedPhrase.Count; i < MAX_SEED_PHRASE_COUNT; i++)
-                {
-                    <li>
-                        <MudChip Color="Color.Info" Class="seed-word">
-                            <span class="font-semibold text-lg min-w-[150px]"></span>
-                        </MudChip>
-                    </li>
-                }
-            </ul>
-            <div class="flex flex-row space-x-4 justify-center items-center w-full">
-                <MudTextField @bind-Value="@ValidationSeedPhraseRawText" Immediate="true" Variant="Variant.Outlined" OnKeyUp="OnValidationTextFieldKeyUp" Disabled="@ShouldDisableValidationTextField()" Class="w-[80%]"/>
-                @if (ShouldDisableValidationTextField())
-                {
-                    <MudButton Class="primary-button p-2" OnClick="OnValidateButtonClick">Validate</MudButton>
-                }
-                else
-                {
-                    <MudButton Class="primary-button p-2" OnClick="OnClearButtonClick">Clear</MudButton>
-                }
-            </div>
-        }
-        @if (IsSeedPhraseShown || IsValidateSeedPhraseShown)
-        {
-            <MudButton Variant="Variant.Filled" OnClick="OnCancelButtonClick" Class="p-4 primary-button mt-8">Cancel</MudButton>
+            <h1 class="text-xl font-bold">
+                Receiving wallet id #0: @ReceivingAddress
+            </h1>
+            <MudButton Variant="Variant.Filled" OnClick="OnRemoveButtonClick" Class="p-4 primary-button mt-8">Remove Wallet</MudButton>
         }
     </div>
 </div>

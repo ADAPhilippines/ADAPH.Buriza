@@ -1,8 +1,10 @@
 import CardanoLoader from "./CardanoLoader";
 import {CardanoWalletApi} from "./CardanoWallet";
+import {CONFIG} from "./Config";
 
 window.CardanoInterop = {
-    Wallet: CardanoWalletApi
+    Wallet: CardanoWalletApi,
+    Config: CONFIG
 };
 
 document.onreadystatechange = async () => {

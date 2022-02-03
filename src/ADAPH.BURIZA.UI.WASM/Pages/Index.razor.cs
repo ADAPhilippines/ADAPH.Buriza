@@ -16,6 +16,8 @@ public partial class Index
     
     private const int MAX_SEED_PHRASE_COUNT = 24;
     private string ValidationSeedPhraseRawText { get; set; } = string.Empty;
+    private bool hasWalletId { get; set; }
+    private string ReceivingAddress { get; set; } = string.Empty;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -30,6 +32,9 @@ public partial class Index
                 Snackbar.Configuration.HideTransitionDuration = 300;
                 Snackbar.Configuration.VisibleStateDuration = 2000;
             }
+            Snackbar?.Add("Retrieving Wallet Data", Severity.Info);
+            await ProcessWalletRetrievalAsync();
+            await InvokeAsync(StateHasChanged);
         }
         await base.OnAfterRenderAsync(firstRender);
     }
@@ -37,21 +42,25 @@ public partial class Index
     private async void OnCreateButtonClick(MouseEventArgs args)
     {
         if(CardanoWalletInteropService is null) throw new NullReferenceException("CardanoWalletInteropService is null");
+        
         var mnemonicWordsRaw = await CardanoWalletInteropService.GenerateSeedPhraseAsync();
         GeneratedMnemonicWords = mnemonicWordsRaw.Split(" ").ToArray();
         IsSeedPhraseShown = true;
+        
         await InvokeAsync(StateHasChanged);
     }
     
     private async void OnRestoreButtonClick(MouseEventArgs args)
     {
         ValidationSeedPhrase.Clear();
+        IsSeedPhraseShown = false;
         IsValidateSeedPhraseShown = true;
         await InvokeAsync(StateHasChanged);
     }
     
     private async void OnCancelButtonClick(MouseEventArgs args)
     {
+        
         IsSeedPhraseShown = false;
         IsValidateSeedPhraseShown = false;
         await InvokeAsync(StateHasChanged);
@@ -104,22 +113,55 @@ public partial class Index
     private async void OnValidateButtonClick(MouseEventArgs args)
     {
         if(CardanoWalletInteropService is null) throw new NullReferenceException("CardanoWalletInteropService is null");
-        var isSeedPhraseValid = await CardanoWalletInteropService.ValidateSeedPhraseAsync(string.Join(" ", ValidationSeedPhrase));
+        var rawSeedPhrase = string.Join(" ", ValidationSeedPhrase);
+        var isSeedPhraseValid = await CardanoWalletInteropService.ValidateSeedPhraseAsync(rawSeedPhrase);
 
-        if (isSeedPhraseValid)
+        if (isSeedPhraseValid is true)
         {
             Snackbar?.Add("Seed phrase is valid. Restoring Wallet...", Severity.Success);
+            await CardanoWalletInteropService.GenerateWalletAccountAsync(rawSeedPhrase, 0);
+            await ProcessWalletRetrievalAsync();
         }
         else
         {
             Snackbar?.Add("Seed phrase is invalid. Please re-enter seed phrase..", Severity.Error);
             ValidationSeedPhrase.Clear();
             ValidationSeedPhraseRawText = string.Empty;
+            ReceivingAddress = string.Empty;
         }
         await InvokeAsync(StateHasChanged);
     }
+    
     private bool ShouldDisableValidationTextField()
     {
         return ValidationSeedPhrase.Count >= 24;
+    }
+    
+    private async void OnRemoveButtonClick(MouseEventArgs args)
+    {
+        if(CardanoWalletInteropService is null) throw new NullReferenceException("CardanoWalletInteropService is null");
+        await CardanoWalletInteropService.RemoveWalletIdAsync();
+        ValidationSeedPhrase.Clear();
+        IsSeedPhraseShown = false;
+        IsValidateSeedPhraseShown = false;
+        hasWalletId = false;
+        ReceivingAddress = string.Empty;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task ProcessWalletRetrievalAsync()
+    {
+        await Task.Delay(1000);
+        if(CardanoWalletInteropService is null) throw new NullReferenceException("CardanoWalletInteropService is null");
+        hasWalletId = (await CardanoWalletInteropService.GetWalletIdAsync()) is not null;
+        if (hasWalletId)
+        {
+            ReceivingAddress = await CardanoWalletInteropService.GetWalletReceivingAddressAsync(0);
+            Snackbar?.Add("Wallet restored!", Severity.Success);
+        }
+        else
+        {
+            ReceivingAddress = string.Empty;
+        }
     }
 }

@@ -7,6 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Blazored.LocalStorage" Version="4.1.5" />
+    <PackageReference Include="Blockfrost.Api" Version="1.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.1" PrivateAssets="all" />
     <PackageReference Include="MudBlazor" Version="6.0.5" />
@@ -22,7 +24,9 @@
     <TypeScriptCompile Include="wwwroot\scripts\App.ts" />
     <TypeScriptCompile Include="wwwroot\scripts\CardanoHelper.ts" />
     <TypeScriptCompile Include="wwwroot\scripts\CardanoLoader.ts" />
+    <TypeScriptCompile Include="wwwroot\scripts\CardanoProtocolParams.ts" />
     <TypeScriptCompile Include="wwwroot\scripts\CardanoWallet.ts" />
+    <TypeScriptCompile Include="wwwroot\scripts\Config.ts" />
     <TypeScriptCompile Include="wwwroot\scripts\global.d.ts" />
   </ItemGroup>
 

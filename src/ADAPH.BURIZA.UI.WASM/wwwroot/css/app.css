@@ -4,7 +4,7 @@
 
 @layer base {
     html, body, h1 {
-        @apply text-white select-none outline-none !important;
+        @apply text-white outline-none !important;
     }
 }
 @layer components {
